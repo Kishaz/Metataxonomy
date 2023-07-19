@@ -1,0 +1,80 @@
+conda activate kraken2
+
+# Download NCBI taxonomy files (the sequence ID to taxon map, the taxonomic names and tree information) 
+	kraken2-build --download-taxonomy --threads 20 --db myDB --use-ftp 
+		
+#Download database of interest and uncompress (downloaded on 2023/05/19)
+
+###bacteria
+	wget https://ftp.ncbi.nlm.nih.gov/refseq/release/bacteria/bacteria.1.1.genomic.fna.gz
+
+	
+#Unzip all the downloaded datasets
+
+	gunzip *.gz
+	
+#Install a genomic library
+	kraken2-build --download-library bacteria --threads 20 --db myDB #This had a problem connecting to the server
+	
+#Add any refseq to the library
+	
+	kraken2-build --add-to-library bacteria.1.1.genomic.fna --threads 20 --db myDB
+	
+#Build the database
+	kraken2-build --build --max-db-size 20000000000 --db myDB
+	
+#Taxonomic assignment	
+
+kraken2 --db myDB --report classification_report_ctrl --output classified_ctrl_M13.fastq F8_M13.fastq  
+
+kraken2 --db myDB --report kraken_out_230530/classification_report_F1 --output kraken_out_230530/classified_F2_M13.fastq F1_M13.fastq
+
+kraken2 --db myDB --report kraken_out_230530/classification_report_F2 --output kraken_out_230530/classified_F2_M13.fastq F2_M13.fastq 
+
+kraken2 --db myDB --report kraken_out_230530/classification_report_F3 --output kraken_out_230530/classified_F3_M13.fastq F3_M13.fastq 
+
+kraken2 --db myDB --report kraken_out_230530/classification_report_F4 --output kraken_out_230530/classified_F4_M13.fastq F4_M13.fastq  
+
+kraken2 --db myDB --report kraken_out_230530/classification_report_F5 --output kraken_out_230530/classified_F5_M13.fastq F5_M13.fastq  
+
+kraken2 --db myDB --report kraken_out_230530/classification_report_F6 --output kraken_out_230530/classified_F6_M13.fastq F6_M13.fastq  
+
+kraken2 --db myDB --report kraken_out_230530/classification_report_F7 --output kraken_out_230530/classified_F7_M13.fastq F7_M13.fastq  
+
+Conda deactivate
+
+#visualize data with krona
+
+conda activate krona
+
+ktImportTaxonomy -q 2 -t 3 classified_ctrl_M13.fastq -o kk2ctrl.out.html
+ktImportTaxonomy -q 2 -t 3 classified_F1_M13.fastq -o kk2F1.out.html
+ktImportTaxonomy -q 2 -t 3 classified_F2_M13.fastq -o kk2F2.out.html
+ktImportTaxonomy -q 2 -t 3 classified_F3_M13.fastq -o kk2F3.out.html
+ktImportTaxonomy -q 2 -t 3 classified_F4_M13.fastq -o kk2F4.out.html
+ktImportTaxonomy -q 2 -t 3 classified_F5_M13.fastq -o kk2F5.out.html
+ktImportTaxonomy -q 2 -t 3 classified_F6_M13.fastq -o kk2F6.out.html
+ktImportTaxonomy -q 2 -t 3 classified_F7_M13.fastq -o kk2F7.out.html
+
+
+##Convert the Kraken2 reports to Krona-compatible format:
+
+ktImportTaxonomy -q 1 -t 2 -o ctrl.krona classification_report_ctrl
+ktImportTaxonomy -q 1 -t 2 -o P1.krona classification_report_F1.txt
+ktImportTaxonomy -q 1 -t 2 -o P2.krona classification_report_F2.txt
+ktImportTaxonomy -q 1 -t 2 -o N1.krona classification_report_F3.txt
+ktImportTaxonomy -q 1 -t 2 -o P4.krona classification_report_F4.txt
+ktImportTaxonomy -q 1 -t 2 -o P5.krona classification_report_F5.txt
+ktImportTaxonomy -q 1 -t 2 -o N2.krona classification_report_F6.txt
+ktImportTaxonomy -q 1 -t 2 -o P7.krona classification_report_F7.txt
+
+
+conda deactivate
+
+
+
+
+
+
+
+
